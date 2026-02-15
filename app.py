@@ -17,9 +17,7 @@ from sklearn.metrics import (
     matthews_corrcoef
 )
 
-# =====================================================
-# PAGE CONFIG
-# =====================================================
+
 st.set_page_config(
     page_title="Cardiovascular disease prediction",
     layout="wide"
@@ -29,27 +27,21 @@ st.title("Heart Disease Prediction Model")
 
 MODEL_FOLDER = "model"
 
-# =====================================================
-# LOAD LABEL ENCODER
-# =====================================================
+
 label_encoder = pickle.load(
     open(f"{MODEL_FOLDER}/label_encoder.pkl", "rb")
 )
 
-# =====================================================
-# LOAD TRAIN TEST DATA
-# =====================================================
+
 X_train, X_test, y_train, y_test = pickle.load(
     open(f"{MODEL_FOLDER}/train_test_data.pkl", "rb")
 )
 
-# Combine test dataset for download
+
 test_dataset = X_test.copy()
 test_dataset["Target"] = y_test
 
-# =====================================================
-# LOAD ALL MODELS
-# =====================================================
+
 model_files = glob.glob(os.path.join(MODEL_FOLDER, "*.pkl"))
 
 models = {}
@@ -64,12 +56,8 @@ for file in model_files:
     data = pickle.load(open(file, "rb"))
     models[name.replace(".pkl", "")] = data["model"]
 
-#st.success(f"✅ {len(models)} models loaded successfully")
 
-# =====================================================
-# SIDEBAR — DATASET OPTIONS
-# =====================================================
-st.sidebar.header("📁 Dataset Options")
+st.sidebar.header("Dataset Options")
 
 uploaded_file = st.sidebar.file_uploader(
     "Upload CSV Dataset",
@@ -78,9 +66,7 @@ uploaded_file = st.sidebar.file_uploader(
 
 user_df = None
 
-# =====================================================
-# DOWNLOAD ORIGINAL TEST DATASET
-# =====================================================
+
 st.sidebar.subheader("Download Evaluation Dataset")
 
 test_csv = test_dataset.to_csv(index=False).encode("utf-8")
@@ -92,9 +78,7 @@ st.sidebar.download_button(
     "text/csv"
 )
 
-# =====================================================
-# UPLOADED DATASET
-# =====================================================
+
 if uploaded_file is not None:
 
     user_df = pd.read_csv(uploaded_file)
@@ -102,7 +86,7 @@ if uploaded_file is not None:
     st.subheader("Uploaded Dataset Preview")
     st.dataframe(user_df.head())
 
-    # Download uploaded dataset
+    
     uploaded_csv = user_df.to_csv(index=False).encode("utf-8")
 
     st.download_button(
@@ -112,9 +96,7 @@ if uploaded_file is not None:
         "text/csv"
     )
 
-# =====================================================
-# MODEL SELECTION
-# =====================================================
+
 st.header("Model Prediction")
 
 selected_model_name = st.selectbox(
@@ -126,21 +108,17 @@ model = models[selected_model_name]
 
 st.success(f"Currently Evaluating: {selected_model_name}")
 
-# =====================================================
-# PREDICTIONS ON TEST DATA
-# =====================================================
+
 y_pred = model.predict(X_test)
 
-# =====================================================
-# METRICS
-# =====================================================
+
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred)
 mcc = matthews_corrcoef(y_test, y_pred)
 
-# AUC Score
+
 try:
     if hasattr(model, "predict_proba"):
         y_prob = model.predict_proba(X_test)[:, 1]
@@ -150,9 +128,7 @@ try:
 except:
     auc = "Not Available"
 
-# =====================================================
-# DISPLAY METRICS
-# =====================================================
+
 st.subheader("Performance Metrics")
 
 col1, col2, col3 = st.columns(3)
@@ -170,9 +146,7 @@ col5.metric(
 )
 col6.metric("Matthews Corrcoef", f"{mcc:.4f}")
 
-# =====================================================
-# CONFUSION MATRIX
-# =====================================================
+
 st.subheader("Confusion Matrix")
 
 cm = confusion_matrix(y_test, y_pred)
@@ -194,9 +168,7 @@ plt.title(f"Confusion Matrix — {selected_model_name}")
 
 st.pyplot(fig)
 
-# =====================================================
-# PREDICT USING UPLOADED DATASET
-# =====================================================
+
 if user_df is not None:
 
     st.header("🤖 Predict Using Uploaded Dataset")
