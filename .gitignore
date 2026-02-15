@@ -1,0 +1,14 @@
+# Visual Studio
+.vs/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# ML files (optional)
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
